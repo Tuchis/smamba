@@ -41,7 +41,7 @@ class SSM(nn.Module):
 
         # initialization of A
         A = einops.repeat(torch.arange(1, self.d_hidden+1), 'n -> d n', d=self.d_expanded).float()
-        self.A_log = nn.Parameter(torch.log(A))
+        self.A_log = nn.Parameter(torch.log(A)).to(device)
         self.A_log._no_weight_decay = True
 
     def forward(self, x: torch.Tensor):
@@ -71,7 +71,7 @@ class MambaBlock(nn.Module):
                  d_hidden: int = 16,
                  dt_min: float = 1e-3,
                  dt_max: float = 1e-1,
-                 kernel_size: int = 4,
+                 kernel_size: int = 5,
                  device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                  *args, 
                  **kwargs) -> None:
@@ -90,7 +90,7 @@ class MambaBlock(nn.Module):
         self.in_proj = nn.Linear(d_model, 2*self.d_expanded, device=device)
         self.out_proj = nn.Linear(self.d_expanded, d_model, device=device)
 
-        self.conv1d = nn.Conv1d(self.d_expanded, self.d_expanded, self.kernel_size, padding=self.kernel_size-1, bias=True, groups=self.d_expanded, device=device)
+        self.conv1d = nn.Conv1d(self.d_expanded, self.d_expanded, self.kernel_size, bias=True, padding=(self.kernel_size-1)//2, groups=self.d_expanded, device=device)
         self.ssm = SSM(self.d_expanded, self.d_rank, self.d_hidden, self.dt_min, self.dt_max, self.device)
 
     def forward(self, x: torch.Tensor):
@@ -113,7 +113,7 @@ class MambaLNBlock(nn.Module):
                     d_hidden: int = 16,
                     dt_min: float = 1e-3,
                     dt_max: float = 1e-1,
-                    kernel_size: int = 4,
+                    kernel_size: int = 5,
                     device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     *args, 
                     **kwargs) -> None:
@@ -151,7 +151,7 @@ class MambaLLM(nn.Module):
                  d_hidden: int = 16,
                  dt_min: float = 1e-3,
                  dt_max: float = 1e-1,
-                 kernel_size: int = 4,
+                 kernel_size: int = 5,
                  device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                  *args, 
                  **kwargs) -> None:
@@ -187,3 +187,11 @@ class MambaLLM(nn.Module):
         x = self.ln(residual)
         x = self.head(x)
         return x
+
+
+if __name__ == "__main__":
+    model = MambaLLM(100, n_layers=7)
+    x = torch.randint(0, 100, (2, 1024)).to(model.device)
+    y = model(x)
+    print(y.shape)
+    print(y.argmax(-1))
