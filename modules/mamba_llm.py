@@ -56,10 +56,15 @@ class SSM(nn.Module):
         dB = torch.einsum("bld,bln->bldn", dt, B) # (B L d_expanded d_hidden)
         dBX = torch.einsum("bldn,bld->bldn", dB, x) # (B L d_expanded d_hidden)
         for i in range(int(math.log2(x.shape[1]))):
-            dBX[:, 2**i:] = dA[:, 2**i:]*dBX[:, :-2**i] + dBX[:, 2**i:]
-            dA[:, 2**i:] = dA[:, 2**i:]*dA[:, :-2**i]
+            # use torch where to avoid unnecessary computation
+            dBX_copy = dBX.clone()
+            dBX_copy[:, 2**i:] = dA[:, 2**i:]*dBX[:, :-2**i] + dBX[:, 2**i:]
+            dA_copy = dA.clone()
+            dA_copy[:, 2**i:] = dA[:, 2**i:]*dA[:, :-2**i]
+            dA = dA_copy
+            dBX = dBX_copy
         
-        y = torch.einsum("bldn,bln->bld", dBX, C)
+        y = torch.einsum("bldn,bln->bld", dBX_copy, C)
         return y
 
 

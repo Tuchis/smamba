@@ -25,7 +25,7 @@ def train(config: dict):
     tr, val = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
     tr_dataloader = DataLoader(tr, batch_size=config["data"]["batch_size"], num_workers=config["data"]["num_workers"], shuffle=True)
     val_dataloader = DataLoader(val, batch_size=config["data"]["batch_size"], num_workers=config["data"]["num_workers"], shuffle=False)
-
+    torch.autograd.set_detect_anomaly(True)
 
     os.makedirs(config["train"]["save_dir"], exist_ok=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=config["train"]["lr"])
@@ -39,7 +39,6 @@ def train(config: dict):
             text, label = text.to(device), label.to(device)
             model.zero_grad()
             logits = model(text)
-            print(logits.shape, label.shape)
             loss = loss_fn(logits, label)
             loss.backward()
             optimizer.step()
