@@ -11,7 +11,7 @@ class SSM(nn.Module):
                  d_hidden: int = 16,
                  dt_min: float = 1e-3,
                  dt_max: float = 1e-1,
-                 device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                 device: torch.device = torch.device('cpu'),
                  *args, 
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -76,7 +76,7 @@ class MambaBlock(nn.Module):
                  dt_min: float = 1e-3,
                  dt_max: float = 1e-1,
                  kernel_size: int = 5,
-                 device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                 device: torch.device = torch.device('cpu'),
                  *args, 
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -118,7 +118,7 @@ class MambaLNBlock(nn.Module):
                     dt_min: float = 1e-3,
                     dt_max: float = 1e-1,
                     kernel_size: int = 5,
-                    device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                    device: torch.device = torch.device('cpu'),
                     *args, 
                     **kwargs) -> None:
             super().__init__(*args, **kwargs)
@@ -156,7 +156,7 @@ class MambaLLM(nn.Module):
                  dt_min: float = 1e-3,
                  dt_max: float = 1e-1,
                  kernel_size: int = 5,
-                 device: torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                 device: torch.device = torch.device('cpu'),
                  *args, 
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)

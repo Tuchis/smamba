@@ -10,7 +10,7 @@ tokenizer:
 model:
   num_tokens: 10000
   d_model: 128
-  n_layers: 1
+  n_layers: 3
   expansion: 2
   d_hidden: 2
   dt_min: 0.001
@@ -18,8 +18,10 @@ model:
   kernel_size: 5
 
 train:
-  epochs: 10
+  epochs: 20
   lr: 0.00001
+  factor: 0.5
+  patience: 2
   log_interval: 100
-  save_dir: "checkpoints"
+  save_dir: "checkpoints/run1"
   resume_path: None

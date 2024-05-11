@@ -7,6 +7,10 @@ import argparse
 import yaml
 import torch
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def train(config: dict):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -19,8 +23,13 @@ def train(config: dict):
                      d_hidden=config["model"]["d_hidden"],
                      dt_min=config["model"]["dt_min"],
                      dt_max=config["model"]["dt_max"],
-                     kernel_size=config["model"]["kernel_size"],
-                     device=device)
+                     kernel_size=config["model"]["kernel_size"])
+    model= torch.nn.DataParallel(model)
+    model.to(device)
+
+    logger.info("Number of parameters in model")
+    logger.info(sum(p.numel() for p in model.parameters() if p.requires_grad))
+
     dataset = get_dataset(data_txt, tokenizer, max_length=config["data"]["max_length"])
     tr, val = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
     tr_dataloader = DataLoader(tr, batch_size=config["data"]["batch_size"], num_workers=config["data"]["num_workers"], shuffle=True)
@@ -29,8 +38,10 @@ def train(config: dict):
 
     os.makedirs(config["train"]["save_dir"], exist_ok=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=config["train"]["lr"])
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=config["train"]["factor"], patience=config["train"]["patience"], verbose=True)
     loss_fn = torch.nn.CrossEntropyLoss()
 
+    logger.info("Starting training")
     for epoch in range(config["train"]["epochs"]):
 
         # Training loop
@@ -43,8 +54,9 @@ def train(config: dict):
             loss.backward()
             optimizer.step()
             if i % config["train"]["log_interval"] == 0:
-                print(f"Train epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
-        print(f"Train epoch {epoch} completed, loss: {loss.item()}")
+                logger.info(f"Train epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
+        scheduler.step(loss)
+        logger.info(f"Train epoch {epoch} completed, loss: {loss.item()}")
         torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))        
         
         # Validation loop
@@ -55,8 +67,8 @@ def train(config: dict):
                 logits = model(text)
                 loss = loss_fn(logits, label)
             if i % config["train"]["log_interval"] == 0:
-                print(f"Val epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
-        print(f"Val epoch {epoch} completed, loss: {loss.item()}")
+                logger.info(f"Val epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
+        logger.info(f"Val epoch {epoch} completed, loss: {loss.item()}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
