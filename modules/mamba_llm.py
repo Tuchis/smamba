@@ -180,11 +180,12 @@ class MambaLLM(nn.Module):
         x: torch.Tensor (B, L)
         """
         residual = None
-        x = self.token_emb(x)
+        x = self.token_emb(x) # (B, L, d_model)
         for block in self.blocks:
-            x, residual = block(x)
+            x, residual = block(x) # (B, L, d_model)
         residual = (x + residual) if residual is not None else x
-        x = self.ln(residual)
+        x = self.ln(residual) # (B, L, d_model)
+        x = x[:, -1] # (B, d_model)
         x = self.head(x)
         return x
 

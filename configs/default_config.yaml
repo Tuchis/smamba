@@ -1,0 +1,25 @@
+data:
+  url: "https://raw.githubusercontent.com/karpathy/ng-video-lecture/master/input.txt"
+  batch_size: 64
+  max_length: 256
+  num_workers: 4
+
+tokenizer:
+  file_path: "utils/tokenizer.json"
+
+model:
+  num_tokens: 10000
+  d_model: 128
+  n_layers: 1
+  expansion: 2
+  d_hidden: 2
+  dt_min: 0.001
+  dt_max: 0.1
+  kernel_size: 5
+
+train:
+  epochs: 10
+  lr: 0.0001
+  log_interval: 100
+  save_dir: "checkpoints"
+  resume_path: None
