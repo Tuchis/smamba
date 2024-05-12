@@ -31,9 +31,10 @@ if __name__ == "__main__":
                      d_hidden=config["model"]["d_hidden"],
                      dt_min=config["model"]["dt_min"],
                      dt_max=config["model"]["dt_max"],
-                     kernel_size=config["model"]["kernel_size"],
-                     device=device)
+                     kernel_size=config["model"]["kernel_size"])
     
+    model= torch.nn.DataParallel(model)
+    model.to(device)
     if args.checkpoint is not None:
         model.load_state_dict(torch.load(args.checkpoint))
 
@@ -56,10 +57,11 @@ if __name__ == "__main__":
         new_token = torch.argmax(logits)
         output.append(new_token.item())
         for i in range(args.length - 1):
-            logits = model.step(new_token.reshape((1, 1)))
+            logits = model.module(new_token.reshape((1,1)), one_step=True)
             new_token = torch.argmax(logits)
             output.append(new_token.item())
     output = tokenizer.detokenize(output)
+    print(type(output))
     if args.output == "stdout":
         print(output)
     else:

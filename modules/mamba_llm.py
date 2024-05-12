@@ -204,10 +204,12 @@ class MambaLLM(nn.Module):
         self.ln = nn.LayerNorm(d_model, device=device)
         self.head = nn.Linear(d_model, num_tokens, bias=False, device=device)
 
-    def forward(self, x: torch.Tensor, cache: torch.Tensor = False):
+    def forward(self, x: torch.Tensor, cache: torch.Tensor = False, one_step: torch.Tensor = False):
         """
         x: torch.Tensor (B, L)
         """
+        if one_step:
+            return self.step(x)
         residual = None
         x = self.token_emb(x) # (B, L, d_model)
         for block in self.blocks:
