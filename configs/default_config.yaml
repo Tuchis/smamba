@@ -11,11 +11,11 @@ model:
   num_tokens: 100
   d_model: 256
   n_layers: 3
-  expansion: 2
-  d_hidden: 2
-  dt_min: 0.001
-  dt_max: 0.1
-  kernel_size: 5
+  expansion: 2 # 2 in original paper, multiplicator of d_model
+  d_hidden: 2 # 16 in original paper, multiplicator of d_model
+  dt_min: 0.001 # default from the original paper
+  dt_max: 0.1 # default from the original paper
+  kernel_size: 5 # must be odd
 
 train:
   epochs: 20
