@@ -26,6 +26,8 @@ def train(config: dict):
                      kernel_size=config["model"]["kernel_size"])
     model= torch.nn.DataParallel(model)
     model.to(device)
+    if config["checkpoint"] is not None:
+        model.load_state_dict(torch.load(config["checkpoint"]))
 
     logger.info("Number of parameters in model")
     logger.info(sum(p.numel() for p in model.parameters() if p.requires_grad))
@@ -55,7 +57,7 @@ def train(config: dict):
             optimizer.step()
             if i % config["train"]["log_interval"] == 0:
                 logger.info(f"Train epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
-        scheduler.step(loss)
+                scheduler.step(loss)
         logger.info(f"Train epoch {epoch} completed, loss: {loss.item()}")
         torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))        
         
@@ -73,6 +75,7 @@ def train(config: dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="configs/default_config.yaml")
+    parser.add_argument("--checkpoint", type=str, default=None)
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
