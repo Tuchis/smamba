@@ -58,6 +58,8 @@ def train(config: dict):
             if i % config["train"]["log_interval"] == 0:
                 logger.info(f"Train epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
                 scheduler.step(loss)
+            if i % config["train"]["save_interval"] == 0:
+                torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))
         logger.info(f"Train epoch {epoch} completed, loss: {loss.item()}")
         torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))        
         
@@ -80,4 +82,5 @@ if __name__ == "__main__":
 
     with open(args.config, "r") as f:
         config = yaml.safe_load(f)
+    config["checkpoint"] = args.checkpoint
     train(config)

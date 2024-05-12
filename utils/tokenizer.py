@@ -17,7 +17,7 @@ class Tokenizer:
     def detokenize(self, tokens):
         return self.tokenizer.decode(tokens)
     
-    def train(self, data: str, file_path: str = None, vocab_size: int = 1000):
+    def train(self, data: str, file_path: str = None, vocab_size: int = 100):
         trainer = tokenizers.trainers.BpeTrainer(vocab_size=vocab_size)
         self.tokenizer.train_from_iterator(data.splitlines(), trainer=trainer)
         if file_path:

@@ -1,15 +1,15 @@
 data:
   url: "https://raw.githubusercontent.com/karpathy/ng-video-lecture/master/input.txt"
   batch_size: 64
-  max_length: 256
+  max_length: 128
   num_workers: 4
 
 tokenizer:
   file_path: "utils/tokenizer.json"
 
 model:
-  num_tokens: 10000
-  d_model: 128
+  num_tokens: 100
+  d_model: 256
   n_layers: 3
   expansion: 2
   d_hidden: 2
@@ -21,7 +21,8 @@ train:
   epochs: 20
   lr: 0.00001
   factor: 0.5
-  patience: 2
+  patience: 5
   log_interval: 100
-  save_dir: "checkpoints/run1"
+  save_interval: 1000
+  save_dir: "checkpoints/run2"
   resume_path: None
