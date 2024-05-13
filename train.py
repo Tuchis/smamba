@@ -43,6 +43,9 @@ def train(config: dict):
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=config["train"]["factor"], patience=config["train"]["patience"], verbose=True)
     loss_fn = torch.nn.CrossEntropyLoss()
 
+    min_loss = float("inf")
+
+
     logger.info("Starting training")
     for epoch in range(config["train"]["epochs"]):
 
@@ -59,6 +62,9 @@ def train(config: dict):
                 logger.info(f"Train epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
                 scheduler.step(loss)
             if i % config["train"]["save_interval"] == 0:
+                torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))
+            if loss.item < min_loss:
+                min_loss = loss.item()
                 torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))
         logger.info(f"Train epoch {epoch} completed, loss: {loss.item()}")
         torch.save(model.state_dict(), os.path.join(config["train"]["save_dir"], f"model_{epoch}_{i}.pt"))        

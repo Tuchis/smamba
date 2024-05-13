@@ -4,6 +4,30 @@ import torch
 import math
 import einops
 
+from functools import partial
+
+def init_weights(module,
+             n_layer,
+             init_range: float = 0.02,
+             n_residuals_per_layer: int = 1):
+    if isinstance(module, nn.Linear):
+        if module.bias is not None:
+            if not getattr(module.bias, "_no_reinit", False):
+                nn.init.zeros_(module.bias)
+    elif isinstance(module, nn.Embedding):
+        nn.init.normal_(module.weight, std=init_range)
+    for name, p in module.named_parameters():
+        print(name)
+        if name in ["dt_proj.weight", "x_proj.weight"]:
+            # Special Scaled Initialization --> There are 2 Layer Norms per Transformer Block
+            # Following Pytorch init, except scale by 1/sqrt(2 * n_layer)
+            # We need to reinit p since this code could be called multiple times
+            # Having just p *= scale would repeatedly scale it down
+            nn.init.kaiming_uniform_(p, a=math.sqrt(5))
+            print(1)
+            with torch.no_grad():
+                p /= math.sqrt(n_residuals_per_layer * n_layer)
+
 class SSM(nn.Module):
     def __init__(self, 
                  d_expanded: int,
@@ -44,6 +68,8 @@ class SSM(nn.Module):
         A = einops.repeat(torch.arange(1, self.d_hidden+1), 'n -> d n', d=self.d_expanded).float()
         self.A_log = nn.Parameter(torch.log(A)).to(device)
         self.A_log._no_weight_decay = True
+
+        # self.apply(partial(init_weights, n_layer=1, n_residuals_per_layer=1))
 
     def forward(self, x: torch.Tensor, cache: torch.Tensor = False, one_step: torch.Tensor = False):
         """

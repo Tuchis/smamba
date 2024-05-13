@@ -33,10 +33,18 @@ if __name__ == "__main__":
                      dt_max=config["model"]["dt_max"],
                      kernel_size=config["model"]["kernel_size"])
     
-    model= torch.nn.DataParallel(model)
+    # model= torch.nn.DataParallel(model)
     model.to(device)
     if args.checkpoint is not None:
-        model.load_state_dict(torch.load(args.checkpoint))
+        if isinstance(model, torch.nn.DataParallel):
+            model.load_state_dict(torch.load(args.checkpoint))
+        else:
+            state_dict = torch.load(args.checkpoint)
+            # Get rid of the "module." prefix
+            new_state_dict = {}
+            for k, v in state_dict.items():
+                new_state_dict[k[7:]] = v
+            model.load_state_dict(new_state_dict)
 
     logger.info("Number of parameters in model")
     logger.info(sum(p.numel() for p in model.parameters() if p.requires_grad))
@@ -53,13 +61,15 @@ if __name__ == "__main__":
     model.eval()
     output = []
     with torch.no_grad():
-        logits = model(tokens, cache = True)
+        logits = model(x=tokens, cache=True)
         new_token = torch.argmax(logits)
         output.append(new_token.item())
         for i in range(args.length - 1):
-            logits = model.module(new_token.reshape((1,1)), one_step=True)
+            logits = model(x=new_token.reshape((1,1)), one_step=True)
             new_token = torch.argmax(logits)
             output.append(new_token.item())
+        logger.info("Generated text")
+        logger.info(" ".join([str(i) for i in output]))
     output = tokenizer.detokenize(output)
     print(type(output))
     if args.output == "stdout":
