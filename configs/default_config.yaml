@@ -5,10 +5,10 @@ data:
   num_workers: 4
 
 tokenizer:
-  file_path: "utils/fancy_tokenizer.json"
+  file_path: "utils/fancy_tokenizer_1024.json"
 
 model:
-  num_tokens: 256
+  num_tokens: 1024
   d_model: 128
   n_layers: 3
   expansion: 2 # 2 in original paper, multiplicator of d_model
