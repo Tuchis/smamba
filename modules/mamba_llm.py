@@ -79,7 +79,6 @@ class SSM(nn.Module):
         y = torch.einsum("bldn,bln->bld", dBX_copy, C)
         return y
 
-
 class MambaBlock(nn.Module):
     def __init__(self, 
                  d_model: int,

@@ -1,4 +1,4 @@
-from utils.tokenizer import Tokenizer
+from utils.tokenizer import Tokenizer, FancyTokenizer, postprocess
 from modules.mamba_llm import MambaLLM
 import argparse
 import yaml
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     else:
         string = args.string
     
-    tokenizer = Tokenizer(config["tokenizer"]["file_path"])
+    tokenizer = FancyTokenizer(config["tokenizer"]["file_path"])
     tokens = tokenizer.tokenize(string)
     tokens = torch.tensor(tokens, dtype=torch.int).unsqueeze(0).to(device)
     model.eval()
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     output = tokenizer.detokenize(output)
     print(type(output))
     if args.output == "stdout":
-        print(output)
+        print(postprocess(output))
     else:
         with open(args.output, "w") as f:
             f.write(output)

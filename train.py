@@ -1,6 +1,6 @@
 from modules.mamba_llm import MambaLLM
 from utils.data import get_text, get_dataset
-from utils.tokenizer import Tokenizer
+from utils.tokenizer import Tokenizer, FancyTokenizer
 from torch.utils.data import DataLoader
 import torch.utils.data
 import argparse
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def train(config: dict):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     data_txt = get_text(config["data"]["url"])
-    tokenizer = Tokenizer(config["tokenizer"]["file_path"])
+    tokenizer = FancyTokenizer(config["tokenizer"]["file_path"])
     model = MambaLLM(num_tokens=config["model"]["num_tokens"],
                      d_model=config["model"]["d_model"],
                      n_layers=config["model"]["n_layers"],
