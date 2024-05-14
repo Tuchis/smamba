@@ -9,7 +9,7 @@
 
 ## Description
 
-Custom implementation of [Mamba](https://github.com/state-spaces/mamba) state space model pretrained for NLP tasks..
+Custom implementation of [Mamba](https://github.com/state-spaces/mamba) state space model pretrained for NLP tasks.
 
 S(m)AMBA reflects our vision of how S4 and Mamba should look like.
 We trained this model on four different datasets:
@@ -18,6 +18,10 @@ We trained this model on four different datasets:
 3. **Harry 1** - entire first book.
 4. **Harry Full** - first 4 books in the series.
 
+
+## Demo
+What we have achieved with this network:
+![demo_gif](artifacts/demo.gif)
 
 ## Usage
 
