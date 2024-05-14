@@ -1,14 +1,14 @@
 data:
-  url: "https://raw.githubusercontent.com/karpathy/ng-video-lecture/master/input.txt"
+  url: "data/shakespeare.txt"
   batch_size: 128
   max_length: 64
   num_workers: 4
 
 tokenizer:
-  file_path: "utils/fancy_tokenizer_1024.json"
+  file_path: "tokenizers/shakespeare_256_vocab.json"
 
 model:
-  num_tokens: 1024
+  num_tokens: 256
   d_model: 128
   n_layers: 3
   expansion: 2 # 2 in original paper, multiplicator of d_model
@@ -18,11 +18,11 @@ model:
   kernel_size: 5 # must be odd
 
 train:
-  epochs: 5
-  lr: 0.0001
+  epochs: 20
+  lr: 0.001
   factor: 0.5
   patience: 5
   log_interval: 100
-  save_interval: 1000
-  save_dir: "checkpoints/bl_tokens"
+  save_interval: 200
+  save_dir: "checkpoints/shakespeare"
   resume_path: None

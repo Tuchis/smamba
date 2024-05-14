@@ -60,10 +60,14 @@ if __name__ == "__main__":
             logits = model.module(new_token.reshape((1,1)), one_step=True)
             new_token = torch.argmax(logits)
             output.append(new_token.item())
-    output = tokenizer.detokenize(output)
-    print(type(output))
+            decoded_token = tokenizer.detokenize([new_token.item()])    
+            print(decoded_token, end="", flush=True)
+    #output = tokenizer.detokenize(output)
+    #print(type(output))
     if args.output == "stdout":
-        print(postprocess(output))
+        #print(f"Raw output: {output}")
+        #print(postprocess(output))
+        pass
     else:
         with open(args.output, "w") as f:
             f.write(output)

@@ -213,8 +213,8 @@ class MambaLLM(nn.Module):
         x = self.token_emb(x) # (B, L, d_model)
         for block in self.blocks:
             x, residual = block(x, cache=cache) # (B, L, d_model)
-        residual = (x + residual) if residual is not None else x
-        x = self.ln(residual) # (B, L, d_model)
+            residual = (x + residual) if residual is not None else x
+            x = self.ln(residual) # (B, L, d_model)
         x = x[:, -1] # (B, d_model)
         x = self.head(x) # (B, num_tokens)
         return x
@@ -227,7 +227,7 @@ class MambaLLM(nn.Module):
         x = self.token_emb(x) # (B, d_model)
         for block in self.blocks:
             x, residual = block(x, one_step=True) # (B, d_model)
-        residual = (x + residual) if residual is not None else x
-        x = self.ln(residual) # (B, d_model)
+            residual = (x + residual) if residual is not None else x
+            x = self.ln(residual) # (B, d_model)
         x = self.head(x) # (B, num_tokens)
         return x
