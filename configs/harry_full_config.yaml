@@ -1,0 +1,28 @@
+data:
+  url: "data/harry_full.txt"
+  batch_size: 128
+  max_length: 64
+  num_workers: 4
+
+tokenizer:
+  file_path: "tokenizers/harry_full_256_vocab.json"
+
+model:
+  num_tokens: 256
+  d_model: 128
+  n_layers: 3
+  expansion: 2 # 2 in original paper, multiplicator of d_model
+  d_hidden: 2 # 16 in original paper, multiplicator of d_model
+  dt_min: 0.001 # default from the original paper
+  dt_max: 0.1 # default from the original paper
+  kernel_size: 5 # must be odd
+
+train:
+  epochs: 20
+  lr: 0.001
+  factor: 0.5
+  patience: 5
+  log_interval: 100
+  save_interval: 200
+  save_dir: "checkpoints/residual_harry_full"
+  resume_path: None
